@@ -12,14 +12,17 @@ interface Props {
 const CameraScreen = ({ navigation }: Props) => {
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
-  const cameraRef = useRef(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const cameraRef = useRef<Camera>(null);
+
 
   if (!permission) {
     // Camera permissions are still loading
     return <View />;
   }
 
-  if (permission.granted) {
+  if (!permission.granted) {
     // Camera permissions are not granted yet
     return (
       <View className="flex-1 items-center justify-center">
@@ -36,16 +39,77 @@ const CameraScreen = ({ navigation }: Props) => {
     setType((current) => (current === CameraType.back ? CameraType.front : CameraType.back));
   };
 
+  // const takePicture = async () => {
+  //   if (cameraRef.current) {
+  //     try {
+  //       const { uri } = await (cameraRef.current as any).takePictureAsync();
+  //       console.log('Picture taken:', uri);
+  //     } catch (error) {
+  //       console.error('Error taking picture:', error);
+  //     }
+  //   }
+  // };
   const takePicture = async () => {
     if (cameraRef.current) {
       try {
         const { uri } = await (cameraRef.current as any).takePictureAsync();
         console.log('Picture taken:', uri);
+        setIsLoading(true);
+        // Call uploadImage function with the captured image URI
+        await uploadImage(uri);
       } catch (error) {
         console.error('Error taking picture:', error);
+        setIsLoading(false);
       }
+    } else {
+      console.warn('Camera is not ready yet. Please wait for onCameraReady callback.');
     }
   };
+
+  const uploadImage = async (imageUri: string) => {
+    const imageName = `image_${Date.now()}.jpg`;
+
+    try {
+      const formData = new FormData();
+      formData.append('image', {
+        uri: imageUri,
+        name: imageName,
+        type: 'image/jpeg',
+      });
+
+      const response = await fetch('https://7b3a-146-7-15-17.ngrok-free.app/upload', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const text = await response.text();
+      console.log('Server response:', text);
+
+      try {
+        const data = JSON.parse(text);
+
+        if (data.success) {
+          setUploadStatus('Image uploaded successfully!');
+        } else {
+          console.error('Error uploading image:', data.message);
+          setUploadStatus('Error uploading image. Please try again.');
+        }
+      } catch (jsonError) {
+        console.error('JSON Parse error:', (jsonError as Error).message);
+        setUploadStatus('Invalid JSON response from the server');
+      }
+    } catch (uploadError) {
+      console.error('Error uploading image:', (uploadError as Error).message);
+      setUploadStatus('Error uploading image. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+ 
 
   return (
     <View className="flex-1">
@@ -101,3 +165,4 @@ const CameraScreen = ({ navigation }: Props) => {
 };
 
 export default CameraScreen;
+
