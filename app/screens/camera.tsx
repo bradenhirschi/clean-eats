@@ -19,7 +19,7 @@ const CameraScreen = ({ navigation }: Props) => {
     return <View />;
   }
 
-  if (permission.granted) {
+  if (!permission.granted) {
     // Camera permissions are not granted yet
     return (
       <View className="flex-1 items-center justify-center">
