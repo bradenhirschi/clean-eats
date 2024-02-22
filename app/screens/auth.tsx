@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Alert, StyleSheet, View } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { supabase } from '../utils/supabase'
 import { Button, Input } from 'react-native-elements'
 
-export default function Auth() {
+const AuthScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -46,6 +46,7 @@ export default function Auth() {
           autoCapitalize={'none'}
         />
       </View>
+      <Text>HEY</Text>
       <View style={styles.verticallySpaced}>
         <Input
           label="Password"
@@ -81,3 +82,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 })
+
+export default AuthScreen;
