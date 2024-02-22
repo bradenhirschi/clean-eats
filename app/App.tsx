@@ -5,11 +5,29 @@ import HomeScreen from './screens/home';
 import ProfileScreen from './screens/profile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';
 import SplashScreen from './screens/splash';
+import 'react-native-url-polyfill/auto'
+import { useState, useEffect } from 'react'
+import { supabase } from './utils/supabase'
+import Auth from './screens/login'
+// import Account from './components/Account'
+import { View, Text } from 'react-native'
+import { Session } from '@supabase/supabase-js'
 
 const App = () => {
   const [loading, setLoading] = useState(true);
+
+  const [session, setSession] = useState<Session | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+  }, [])
 
   const Tab = createBottomTabNavigator();
 
@@ -21,6 +39,8 @@ const App = () => {
 
   return (
     <NavigationContainer>
+      <Auth />
+      {session && session.user && <Text>{session.user.id}</Text>}
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={({ route }) => ({
