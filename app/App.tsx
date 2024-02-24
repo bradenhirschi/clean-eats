@@ -9,10 +9,12 @@ import SplashScreen from './screens/splash';
 import 'react-native-url-polyfill/auto';
 import { useState, useEffect } from 'react';
 import { supabase } from './utils/supabase';
-import Auth from './screens/auth';
+import Auth from './screens/signup-flow/create-account';
 // import Account from './components/Account'
-import { View, Text } from 'react-native';
+import { View, Text, StatusBar } from 'react-native';
 import { Session } from '@supabase/supabase-js';
+import HistoryScreen from './screens/history';
+import MyPlanScreen from './screens/my-plan';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -37,64 +39,81 @@ const App = () => {
   if (loading) return <SplashScreen />;
 
   return (
-    <NavigationContainer>
-      {session && session.user ? (
-        <Tab.Navigator
-          initialRouteName="Home"
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
+    <>
+      <StatusBar barStyle={'dark-content'} />
+      <NavigationContainer>
+        {session && session.user ? (
+          <Tab.Navigator
+            initialRouteName="Home"
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
 
-              switch (route.name) {
-                case 'Home':
-                  iconName = 'home';
-                  break;
-                case 'Camera':
-                  iconName = 'camera';
-                  break;
-                case 'Profile':
-                  iconName = 'person';
-                  break;
-              }
+                switch (route.name) {
+                  case 'Home':
+                    iconName = 'home';
+                    break;
+                  case 'History':
+                    iconName = 'time-outline';
+                    break;
+                  case 'Camera':
+                    iconName = 'camera';
+                    break;
+                  case 'My Plan':
+                    iconName = 'list';
+                    break;
+                  case 'Profile':
+                    iconName = 'person';
+                    break;
+                }
 
-              return (
-                <Ionicons
-                  name={iconName as any}
-                  size={size}
-                  color={color}
-                />
-              );
-            },
-            tabBarActiveTintColor: 'green',
-            tabBarInactiveTintColor: 'gray',
-          })}
-        >
-          <Tab.Screen
-            name="Home"
-            component={HomeScreen}
-          />
-          <Tab.Screen
-            name="Camera"
-            component={CameraScreen}
-            options={{
-              headerShown: false,
-              tabBarStyle: {
-                position: 'absolute',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                borderTopColor: '#000000',
-                opacity: 1,
+                return (
+                  <Ionicons
+                    name={iconName as any}
+                    size={size}
+                    color={color}
+                  />
+                );
               },
-            }}
-          />
-          <Tab.Screen
-            name="Profile"
-            component={ProfileScreen}
-          />
-        </Tab.Navigator>
-      ) : (
-        <Auth />
-      )}
-    </NavigationContainer>
+              headerShown: false,
+              tabBarActiveTintColor: 'green',
+              tabBarInactiveTintColor: 'gray',
+            })}
+          >
+            <Tab.Screen
+              name="Home"
+              component={HomeScreen}
+            />
+            <Tab.Screen
+              name="History"
+              component={HistoryScreen}
+            />
+            <Tab.Screen
+              name="Camera"
+              component={CameraScreen}
+              options={{
+                tabBarStyle: {
+                  position: 'absolute',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  borderTopColor: '#000000',
+                  opacity: 1,
+                },
+              }}
+            />
+            <Tab.Screen
+              name="My Plan"
+              component={MyPlanScreen}
+            />
+            <Tab.Screen
+              name="Profile"
+              component={ProfileScreen}
+            />
+          </Tab.Navigator>
+        ) : (
+          <Auth />
+        )}
+      </NavigationContainer>
+    </>
   );
 };
 
