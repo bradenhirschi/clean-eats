@@ -109,8 +109,6 @@ const CameraScreen = ({ navigation }: Props) => {
     }
   };
 
- 
-
   return (
     <View className="flex-1">
       <Camera

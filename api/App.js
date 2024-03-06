@@ -1,6 +1,7 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+
 const app = express();
 const port = 3001;
 
@@ -18,7 +19,7 @@ const upload = multer({ storage: storage });
 app.use('/uploads', (req, res, next) => {
   console.log('Requested:', req.originalUrl);
   next();
-}, express.static(path.join(__dirname, 'uploads')));
+}, express.static(path.join(import.meta.url.replace('file://', ''), 'uploads')));
 
 app.post('/upload', upload.single('image'), (req, res) => {
   if (req.file) {

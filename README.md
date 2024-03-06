@@ -1,15 +1,18 @@
-## To run the React Native app
+## Running the app
 
-cd app
-npm start
+### To start the api (from api directory)
 
-## To run the API
+`npm start`
 
-cd api
-venv stuff idk
-python3 manage.py runserver
+### To run the React Native app (from app directory)
 
-# To push git changes
+`npm start`
+
+- Scan the QR code using the camera app on iPhone or the Expo Go app on Android
+
+## Development
+
+### To push git changes
 
 1. git branch (to see which branch you're in, make sure you're in the one with your name)
 2. git add . (adds all files to stage)
