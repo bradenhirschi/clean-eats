@@ -1,12 +1,12 @@
 ## Running the app
 
-### To start the api (from this root directory)
+### To start the api (from api directory)
 
-`cd api && node .` (starts the api)
+`npm start`
 
-### To run the React Native app (from this root directory)
+### To run the React Native app (from app directory)
 
-`cd app && npm start`
+`npm start`
 
 - Scan the QR code using the camera app on iPhone or the Expo Go app on Android
 
