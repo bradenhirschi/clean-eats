@@ -1,45 +1,69 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import CameraScreen from './screens/camera';
+import CameraLayoutScreen from './screens/camera/camera-layout';
 import HomeScreen from './screens/home';
 import ProfileScreen from './screens/profile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import SplashScreen from './screens/splash';
 import 'react-native-url-polyfill/auto';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './utils/supabase';
 import Auth from './screens/signup-flow/create-account';
-// import Account from './components/Account'
-import { View, Text, StatusBar } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { Session } from '@supabase/supabase-js';
-import HistoryScreen from './screens/history';
+import HistoryScreen from './screens/history/history';
 import MyPlanScreen from './screens/my-plan';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+
+SplashScreen.preventAutoHideAsync();
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  const [fontsLoaded] = useFonts({
+          'montserrat-bold': require('./assets/fonts/Montserrat-Bold.ttf'),
+          'montserrat-medium': require('./assets/fonts/Montserrat-Medium.ttf'),
+        });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    async function prepare() {
+      try {
+        await supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+        });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+        await supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session);
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
   }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady && fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady || !fontsLoaded) {
+    return null;
+  }
 
   const Tab = createBottomTabNavigator();
 
-  setTimeout(() => {
-    setLoading(false);
-  }, 3000);
-
-  if (loading) return <SplashScreen />;
-
   return (
-    <>
+    <View
+      className="flex-1"
+      onLayout={onLayoutRootView}
+    >
       <StatusBar barStyle={'dark-content'} />
       <NavigationContainer>
         {session && session.user ? (
@@ -56,7 +80,7 @@ const App = () => {
                   case 'History':
                     iconName = 'time-outline';
                     break;
-                  case 'Camera':
+                  case 'CameraLayout':
                     iconName = 'camera';
                     break;
                   case 'My Plan':
@@ -76,7 +100,7 @@ const App = () => {
                 );
               },
               headerShown: false,
-              tabBarActiveTintColor: 'green',
+              tabBarActiveTintColor: '#5E9E38',
               tabBarInactiveTintColor: 'gray',
             })}
           >
@@ -89,9 +113,10 @@ const App = () => {
               component={HistoryScreen}
             />
             <Tab.Screen
-              name="Camera"
-              component={CameraScreen}
+              name="CameraLayout"
+              component={CameraLayoutScreen}
               options={{
+                title: 'Camera',
                 tabBarStyle: {
                   position: 'absolute',
                   backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -113,7 +138,7 @@ const App = () => {
           <Auth />
         )}
       </NavigationContainer>
-    </>
+    </View>
   );
 };
 

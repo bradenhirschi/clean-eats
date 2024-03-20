@@ -1,21 +1,20 @@
-import { Camera, CameraType } from 'expo-camera';
+import { CameraType, CameraView, useCameraPermissions } from 'expo-camera/next';
 import React, { useState, useRef } from 'react';
 import { Button, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Props {
   navigation: {
-    navigate: (route: string) => void;
+    navigate: (route: string, params?: any) => void;
   };
 }
 
 const CameraScreen = ({ navigation }: Props) => {
-  const [type, setType] = useState(CameraType.back);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const cameraRef = useRef<Camera>(null);
-
+  const cameraRef = useRef<CameraView>(null);
 
   if (!permission) {
     // Camera permissions are still loading
@@ -36,27 +35,16 @@ const CameraScreen = ({ navigation }: Props) => {
   }
 
   const toggleCameraType = () => {
-    setType((current) => (current === CameraType.back ? CameraType.front : CameraType.back));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
   };
 
-  // const takePicture = async () => {
-  //   if (cameraRef.current) {
-  //     try {
-  //       const { uri } = await (cameraRef.current as any).takePictureAsync();
-  //       console.log('Picture taken:', uri);
-  //     } catch (error) {
-  //       console.error('Error taking picture:', error);
-  //     }
-  //   }
-  // };
   const takePicture = async () => {
     if (cameraRef.current) {
       try {
-        const { uri } = await (cameraRef.current as any).takePictureAsync();
-        console.log('Picture taken:', uri);
+        const pictureData = await (cameraRef.current as any).takePictureAsync({ base64: true });
+
         setIsLoading(true);
-        // Call uploadImage function with the captured image URI
-        await uploadImage(uri);
+        await uploadImage(pictureData.base64);
       } catch (error) {
         console.error('Error taking picture:', error);
         setIsLoading(false);
@@ -66,57 +54,43 @@ const CameraScreen = ({ navigation }: Props) => {
     }
   };
 
-  const uploadImage = async (imageUri: string) => {
+  const uploadImage = async (base64: string) => {
     const imageName = `image_${Date.now()}.jpg`;
 
-    try {
-      const formData = new FormData();
-      formData.append('image', {
-        uri: imageUri,
-        name: imageName,
-        type: 'image/jpeg',
-      });
+    const imageData = {
+      base64,
+      name: imageName,
+      type: 'image/jpg',
+    };
 
-      const response = await fetch('https://7b3a-146-7-15-17.ngrok-free.app/upload', {
+    try {
+      const response = await fetch('http://10.13.17.207:3000', {
         method: 'POST',
-        body: formData,
+        body: JSON.stringify({ image: imageData }),
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
 
-      const text = await response.text();
-      console.log('Server response:', text);
-
-      try {
-        const data = JSON.parse(text);
-
-        if (data.success) {
-          setUploadStatus('Image uploaded successfully!');
-        } else {
-          console.error('Error uploading image:', data.message);
-          setUploadStatus('Error uploading image. Please try again.');
-        }
-      } catch (jsonError) {
-        console.error('JSON Parse error:', (jsonError as Error).message);
-        setUploadStatus('Invalid JSON response from the server');
-      }
-    } catch (uploadError) {
-      console.error('Error uploading image:', (uploadError as Error).message);
-      setUploadStatus('Error uploading image. Please try again.');
-    } finally {
-      setIsLoading(false);
+      const data = await response.json();
+      navigation.navigate('Results', { imageText: data });
+    } catch (error) {
+      console.error('Error uploading image:', error);
     }
   };
 
   return (
     <View className="flex-1">
-      <Camera
-        type={type}
+      <CameraView
+        type={facing}
         ref={cameraRef}
         className="flex-1"
+        onBarcodeScanned={(scanningResult) => {
+          // TODO BRADEN move this into a named function
+          navigation.navigate('Results', { imageText: JSON.stringify(scanningResult) });
+        }}
       >
-        <View className="flex-1 mx-4 mt-24">
+        <View className="mx-4 mt-24">
           {/* Close and flip camera icons */}
           <View className="flex-row justify-between">
             <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -157,10 +131,9 @@ const CameraScreen = ({ navigation }: Props) => {
             />
           </View>
         </View>
-      </Camera>
+      </CameraView>
     </View>
   );
 };
 
 export default CameraScreen;
-

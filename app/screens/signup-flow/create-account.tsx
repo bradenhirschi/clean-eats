@@ -52,7 +52,7 @@ const AuthScreen = () => {
       <DismissKeyboard>
             <View className="p-12 mt-4">
         <View className="flex items-center my-24">
-          <Text className="text-5xl">CleanEats</Text>
+          <Text className="text-5xl">CleanEats {/* TODO BRADEN make this Montserrat font */}</Text> 
         </View>
         <View className="py-2">
           <Input
@@ -62,6 +62,7 @@ const AuthScreen = () => {
             value={email}
             placeholder="email@address.com"
             autoCapitalize={'none'}
+            textContentType='oneTimeCode' // TODO BRADEN this is a janky fix to hide the password toolbar. Figure out a better way
           />
         </View>
         <View className="py-2">
@@ -77,7 +78,7 @@ const AuthScreen = () => {
         </View>
         <View className="py-2">
           <TouchableOpacity
-            className="bg-green-700 rounded-full p-4 items-center"
+            className="bg-[#5e9e38] rounded-2xl p-4 items-center"
             disabled={loading}
             onPress={() => signUpWithEmail()}
           >
