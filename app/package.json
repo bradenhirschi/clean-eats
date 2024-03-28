@@ -32,7 +32,8 @@
     "react-native-web": "~0.19.6",
     "tailwindcss": "3.2.2",
     "tesseract.js": "^5.0.5",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
