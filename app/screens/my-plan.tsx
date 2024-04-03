@@ -41,13 +41,6 @@ const MyPlanScreen = ({ navigation }: Props) => {
     fetchData();
   }, [])
 
-  // useEffect(() => {
-  //   const getUserAllergies = async () => {
-
-  //   };
-  //   getUserAllergies();
-  // }, []);
-
   useEffect(() => {
     const getCommonAllergies = async () => {
       try {
@@ -93,7 +86,7 @@ const MyPlanScreen = ({ navigation }: Props) => {
 
   return (
     <View className="flex-1 items-center justify-center">
-      <View className="flex-1 flex flex-row items-center justify-center">
+      <View className="flex-wrap flex-row justify-center">
         {commonAllergies?.map((Allergy) => (
           <View
             key={Allergy}
@@ -107,7 +100,8 @@ const MyPlanScreen = ({ navigation }: Props) => {
         {/* {commonAllergies.map((allergy) => (
           <Button>{allergy}</Button>
     ))} */}
-        <View>
+      </View>
+      <View>
           <TextInput
             style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
             placeholder="Enter new allergy"
@@ -120,7 +114,6 @@ const MyPlanScreen = ({ navigation }: Props) => {
             <Text className="text-white">Create New Allergy</Text>
           </Pressable>
         </View>
-      </View>
     </View>
   );
 }
