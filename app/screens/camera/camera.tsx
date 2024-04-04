@@ -64,7 +64,7 @@ const CameraScreen = ({ navigation }: Props) => {
     };
 
     try {
-      const response = await fetch('http://10.13.17.207:3000', {
+      const response = await fetch('http://10.13.63.81:3000', {
         method: 'POST',
         body: JSON.stringify({ image: imageData }),
         headers: {
