@@ -85,6 +85,7 @@ const CameraScreen = ({ navigation }: Props) => {
         type={facing}
         ref={cameraRef}
         className="flex-1"
+        // barcodeScannerSettings={{barCodeTypes: ['upc_a']}}
         onBarcodeScanned={(scanningResult) => {
           // TODO BRADEN move this into a named function
           navigation.navigate('Results', { imageText: JSON.stringify(scanningResult) });
