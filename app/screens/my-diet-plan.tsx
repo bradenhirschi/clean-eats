@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase } from '../utils/supabase';
 import { Octicons } from '@expo/vector-icons';
+import { Button } from 'react-native-elements';
 
 interface Props {
   navigation: {
@@ -86,60 +87,80 @@ const MyDietPlanScreen = ({ navigation }: Props) => {
     }
   };
 
+  const toggleDietSelected = (diet: string) => {
+     if (selectedDiets.includes(diet)) {
+      // If diet already exists, remove it
+      setSelectedDiets(selectedDiets.filter(item => item !== diet));
+    } else {
+      // If diet doesn't exist, add it
+      setSelectedDiets([...selectedDiets, diet]);
+    }
+  }
+
   return (
     <View className="flex-1 bg-gray-100 text-black">
+      {/* Header */}
       <View className="flex flex-col bg-white border-b border-b-gray-300 mb-8 pt-20 pb-4 px-4">
         <Text className="text-2xl font-[montserrat-bold]">Diet Plan</Text>
       </View>
 
-      <View className="flex-1 bg-gray-100 px-4">
-        {/* Buttons */}
-        <View className="flex flex-row justify-center mt-2">
-          <Pressable
-            className="items-center mr-4"
-            onPress={() => handleDietSelection('Vegan')}>
-            <View className="bg-green-500 h-24 w-24  flex items-center justify-center">
-              <Ionicons name="leaf-outline" size={32} color="white" />
-            </View>
-            <Text className="mt-2">Vegan</Text>
-          </Pressable>
+      {/* Buttons */}
+      <View className="flex flex-row flex-wrap gap-2 justify-center mt-2 grow">
+        <Pressable
+          className="items-center"
+          onPress={() => toggleDietSelected('Vegan')}
+        >
+          <View className="bg-green-500 h-20 w-20 flex items-center justify-center">
+            <Ionicons
+              name="leaf-outline"
+              size={32}
+              color="white"
+            />
+          </View>
+          <Text className="mt-2">Vegan</Text>
+        </Pressable>
 
+        <Pressable
+          className="items-center"
+          onPress={() => toggleDietSelected('Keto')}
+        >
+          <View className="bg-green-500 h-20 w-20 flex items-center justify-center">
+            <Ionicons
+              name="sad-outline"
+              size={32}
+              color="white"
+            />
+          </View>
+          <Text className="mt-2">Keto</Text>
+        </Pressable>
+
+        <View className="items-center p-2 bg-white rounded-md shadow-lg">
           <Pressable
-            className="items-center"
-            onPress={() => handleDietSelection('Keto')}>
-            <View className="bg-green-500 h-24 w-24  flex items-center justify-center">
-              <Ionicons name="sad-outline" size={32} color="white" />
-            </View>
-            <Text className="mt-2">Keto</Text>
+            className={`bg-gray-100 h-20 w-20 rounded-md flex items-center justify-center ${
+              selectedDiets.includes('Paleo') && 'bg-[#5e9e38]'
+            }`}
+            onPress={() => toggleDietSelected('Paleo')}
+          >
+            <Ionicons
+              name="fish-outline"
+              size={32}
+              color={selectedDiets.includes('Paleo') ? 'white' : 'black'}
+            />
+            <Ionicons
+              name="egg-outline"
+              size={32}
+              color={selectedDiets.includes('Paleo') ? 'white' : 'black'}
+            />
           </Pressable>
+          <Text className='mt-2'>Paleo</Text>
         </View>
 
-          <View className="flex flex-row justify-center mt-2">
-          <Pressable
-            className="items-center mr-4"
-            onPress={() => handleDietSelection('Paleo')}>
-            <View className="bg-green-500 h-24 w-24  flex items-center justify-center">
-              <Ionicons name="fish-outline" size={32} color="white" />
-              <Ionicons name="egg-outline" size={32} color="white" />
-            </View>
-            <Text className="mt-2">Paleo</Text>
-          </Pressable>
-          </View>
-        {/* Selected diets */}
-        <View className="mb-4 p-4 bg-white">
-          <Text className="text-xl mb-2 font-[montserrat-bold]">Selected Diets</Text>
-          <View className="rounded-lg bg-gray-200 divide-y p-2">
-            {selectedDiets.length > 0 ? (
-              selectedDiets.map((diet, index) => (
-                <View key={index} className="p-2">
-                  <Text className="text-base">{diet}</Text>
-                </View>
-              ))
-            ) : (
-              <Text>No diet plans selected</Text>
-            )}
-          </View>
-        </View>
+
+      </View>
+
+      {/* Save changes button */}
+      <View>
+        <Pressable><Text>Save</Text></Pressable>
       </View>
     </View>
   );
