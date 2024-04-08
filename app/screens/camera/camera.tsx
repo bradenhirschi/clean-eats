@@ -64,7 +64,7 @@ const CameraScreen = ({ navigation }: Props) => {
     };
 
     try {
-      const response = await fetch('http://10.13.63.81:3000', {
+      const response = await fetch('http://10.13.40.52:3000', {
         method: 'POST',
         body: JSON.stringify({ image: imageData }),
         headers: {
@@ -85,6 +85,7 @@ const CameraScreen = ({ navigation }: Props) => {
         type={facing}
         ref={cameraRef}
         className="flex-1"
+        // barcodeScannerSettings={{barCodeTypes: ['upc_a']}}
         onBarcodeScanned={(scanningResult) => {
           // TODO BRADEN move this into a named function
           navigation.navigate('Results', { imageText: JSON.stringify(scanningResult) });

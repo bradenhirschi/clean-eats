@@ -18,3 +18,7 @@
 2. git add . (adds all files to stage)
 3. git commit -m "(insert message here)"
 4. git push (pushes to github)
+
+### Known issues
+
+- Barcodes from walmart seem to not work. This may have something to do with them using SKUs instead of UPCs to organize their products. It may be impossible to scan Walmart products correctly. Use Price Chopper online shopping for testing

@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import {
   Alert,
   Button,
+  Pressable,
+  Modal,
   Keyboard,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  StyleSheet
 } from 'react-native';
 import { supabase } from '../../utils/supabase';
 import { Input } from 'react-native-elements';
@@ -21,6 +24,7 @@ const AuthScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   async function signInWithEmail() {
     setLoading(true);
@@ -49,10 +53,10 @@ const AuthScreen = () => {
   }
 
   return (
-      <DismissKeyboard>
-            <View className="p-12 mt-4">
+    <DismissKeyboard>
+      <View className="p-12 mt-4">
         <View className="flex items-center my-24">
-          <Text className="text-5xl">CleanEats {/* TODO BRADEN make this Montserrat font */}</Text> 
+          <Text className="text-5xl">CleanEats {/* TODO BRADEN make this Montserrat font */}</Text>
         </View>
         <View className="py-2">
           <Input
@@ -94,10 +98,13 @@ const AuthScreen = () => {
             Sign in
           </Text>
         </View>
-            </View>
+      </View>
 
-      </DismissKeyboard>
+    </DismissKeyboard>
   );
 };
+
+
+
 
 export default AuthScreen;
