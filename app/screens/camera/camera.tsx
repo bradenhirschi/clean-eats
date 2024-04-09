@@ -64,7 +64,7 @@ const CameraScreen = ({ navigation }: Props) => {
     };
 
     try {
-      const response = await fetch('http://10.13.40.52:3000', {
+      const response = await fetch('http://10.13.17.207:3000', {
         method: 'POST',
         body: JSON.stringify({ image: imageData }),
         headers: {
@@ -110,8 +110,10 @@ const CameraScreen = ({ navigation }: Props) => {
             </TouchableOpacity>
           </View>
 
+          <Text className="text-white text-lg mt-24 mb-4 text-center">Scan a barcode to get started!</Text>
+
           {/* Box showing where to scan */}
-          <View className="relative mx-auto my-24 h-72 w-72">
+          <View className="relative mx-auto h-72 w-72">
             {/* Top left corner */}
             <View className="absolute top-0 left-0 h-16 w-16 border-white border-t-2 border-l-2 rounded-tl-3xl" />
             {/* Top right corner */}
@@ -125,10 +127,10 @@ const CameraScreen = ({ navigation }: Props) => {
           <View className="flex-1" />
 
           {/* Camera button */}
-          <View className="mx-auto mb-28 w-[80px] h-[80px] rounded-full bg-white flex items-center justify-center">
+          <View className="mx-auto mb-32 w-[80px] h-[80px] rounded-full bg-transparent flex items-center justify-center">
             <TouchableOpacity
               onPress={takePicture}
-              className="w-[70px] h-[70px] rounded-full bg-white border-2 border-black"
+              className="w-[70px] h-[70px] rounded-full bg-transparent"
             />
           </View>
         </View>

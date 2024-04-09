@@ -13,7 +13,6 @@ import { View, StatusBar } from 'react-native';
 import { Session } from '@supabase/supabase-js';
 import HistoryScreen from './screens/history/history';
 import MyPlanScreen from './screens/my-plan';
-import MyDietScreen from './screens/my-diet-plan';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 
@@ -134,10 +133,6 @@ const App = () => {
             <Tab.Screen
               name="My Plan"
               component={MyPlanScreen}
-            />
-            <Tab.Screen
-              name="Diet"
-              component={MyDietScreen}
             />
             <Tab.Screen
               name="Profile"
