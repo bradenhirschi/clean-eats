@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
-import { supabase } from '../../utils/supabase';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
+import { supabase } from "../../utils/supabase";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Props {
   route: { params: { barcodeData: string } };
@@ -12,7 +12,7 @@ const ImageResultsScreen = ({ route }: Props) => {
   let backupUpc: string;
 
   const [data, setData] = useState<any>();
-  const [warning, setWarning] = useState<string>('');
+  const [warning, setWarning] = useState<string>();
 
   const getUserID = async () => {
     try {
@@ -21,7 +21,7 @@ const ImageResultsScreen = ({ route }: Props) => {
         return id;
       }
     } catch (error) {
-      console.log('Error getting User ID:', error);
+      console.log("Error getting User ID:", error);
     }
   };
 
@@ -53,14 +53,27 @@ const ImageResultsScreen = ({ route }: Props) => {
       const userId = await getUserID();
       try {
         await supabase
-          .from('user_allergies')
-          .select('allergy_name')
-          .eq('user_id', userId)
+          .from("user_allergies")
+          .select("allergy_name, common_allergies (included_allergies)")
+          .eq("user_id", userId)
           .then(({ data, error }) => {
             if (error) {
-              throw new Error(`Error fetching user allergies: ${error.message}`);
+              throw new Error(
+                `Error fetching user allergies: ${error.message}`
+              );
             }
-            userAllergies = data.map((d) => d.allergy_name);
+
+            // This looks terrible but so far its my best idea.
+            // It maps to get all the user's "common allergies" and those included allergies in one array
+            userAllergies = data
+              .map((d) => {
+                return [
+                  d.allergy_name,
+                  // @ts-ignore
+                  d.common_allergies.included_allergies,
+                ].flat();
+              })
+              .flat();
           });
       } catch (err) {
         console.error(err);
@@ -71,12 +84,17 @@ const ImageResultsScreen = ({ route }: Props) => {
         const firstFoodItem = data.foods[0];
         setData(firstFoodItem);
         {
+          let newWarning = "";
           userAllergies.map((allergy) => {
             if (firstFoodItem.ingredients.toLowerCase().includes(allergy)) {
-              const newWarning = `${warning}WARNING: this food includes ${allergy}\n`;
-              setWarning(newWarning);
+              if (newWarning === "") {
+                newWarning = `${newWarning}WARNING: this food includes ${allergy}\n`;
+              } else {
+                newWarning = `${newWarning} and ${allergy}`;
+              }
             }
           });
+          setWarning(newWarning);
         }
         const { data: historyData, error: historyError } = await supabase.from('user_history').insert({ upc: upc, brand_name: firstFoodItem.brandName, product_name: firstFoodItem.description })
         if (historyError) {
@@ -86,7 +104,7 @@ const ImageResultsScreen = ({ route }: Props) => {
         }
         // storeHistory();
       } else {
-        console.log('No food items found');
+        console.log("No food items found");
       }
     };
     fetchData();
@@ -95,8 +113,8 @@ const ImageResultsScreen = ({ route }: Props) => {
 
   if (!data) {
     return (
-      <View className="flex-1 p-8">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center p-8">
+        <ActivityIndicator size={"large"} />
       </View>
     );
   }
@@ -106,13 +124,20 @@ const ImageResultsScreen = ({ route }: Props) => {
   return (
     <View className="flex-1 p-8">
       <View className="border-b border-gray-300 pb-2">
-        <Text className="font-bold text-xl">{data.description || ''}</Text>
-        <Text className="text-gray-500 text-xs">{data.brandName || 'Unbranded'}</Text>
+        <Text className="font-bold text-xl">{data.description || ""}</Text>
+        <Text className="text-gray-500 text-xs">
+          {data.brandName || "Unbranded"}
+        </Text>
       </View>
       <View className="py-2">
         <Text className="font-semibold text-lg">Ingredients</Text>
         <Text className="mb-2">{data.ingredients.toLowerCase()}</Text>
-        {warning && <Text className="text-red-700">{warning}</Text>}
+        {warning && (
+          <View className="flex flex-row items-center justify-center p-4 mt-2 rounded-lg bg-red-700/30">
+            <Ionicons name={'alert-circle-outline'} size={32} color="#b91c1c" />
+            <Text className="text-red-700 ml-2">{warning}</Text>
+          </View>
+        )}
       </View>
     </View>
   );
