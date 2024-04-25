@@ -12,7 +12,6 @@ interface Props {
 const CameraScreen = ({ navigation }: Props) => {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
@@ -38,51 +37,10 @@ const CameraScreen = ({ navigation }: Props) => {
     setFacing((current) => (current === 'back' ? 'front' : 'back'));
   };
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      try {
-        const pictureData = await (cameraRef.current as any).takePictureAsync({ base64: true });
-
-        setIsLoading(true);
-        await uploadImage(pictureData.base64);
-      } catch (error) {
-        console.error('Error taking picture:', error);
-        setIsLoading(false);
-      }
-    } else {
-      console.warn('Camera is not ready yet. Please wait for onCameraReady callback.');
-    }
-  };
-
-  const uploadImage = async (base64: string) => {
-    const imageName = `image_${Date.now()}.jpg`;
-
-    const imageData = {
-      base64,
-      name: imageName,
-      type: 'image/jpg',
-    };
-
-    try {
-      const response = await fetch('http://10.13.17.207:3000', {
-        method: 'POST',
-        body: JSON.stringify({ image: imageData }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      navigation.navigate('Results', { imageText: data });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
-  };
-
   return (
     <View className="flex-1">
       <CameraView
-        type={facing}
+      facing={facing}
         ref={cameraRef}
         className="flex-1"
         // barcodeScannerSettings={{barCodeTypes: ['upc_a']}}
@@ -128,10 +86,10 @@ const CameraScreen = ({ navigation }: Props) => {
 
           {/* Camera button */}
           <View className="mx-auto mb-32 w-[80px] h-[80px] rounded-full bg-transparent flex items-center justify-center">
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={takePicture}
               className="w-[70px] h-[70px] rounded-full bg-transparent"
-            />
+            /> */}
           </View>
         </View>
       </CameraView>

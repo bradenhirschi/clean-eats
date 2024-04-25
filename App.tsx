@@ -85,11 +85,9 @@ const App = () => {
                     case "My Plan":
                       iconName = "list";
                       break;
-
                     case "Diet":
                       iconName = "folder";
                       break;
-
                     case "Profile":
                       iconName = "person";
                       break;
