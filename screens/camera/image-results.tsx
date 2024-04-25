@@ -1,6 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { supabase } from '../../utils/supabase';
 
 interface Props {
@@ -76,8 +75,8 @@ const ImageResultsScreen = ({ route }: Props) => {
 
   if (!data) {
     return (
-      <View className="flex-1 p-8">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center p-8">
+        <ActivityIndicator size={'large'} />
       </View>
     );
   }
