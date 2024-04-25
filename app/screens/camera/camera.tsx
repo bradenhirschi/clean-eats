@@ -88,7 +88,7 @@ const CameraScreen = ({ navigation }: Props) => {
         // barcodeScannerSettings={{barCodeTypes: ['upc_a']}}
         onBarcodeScanned={(scanningResult) => {
           // TODO BRADEN move this into a named function
-          navigation.navigate('Results', { imageText: JSON.stringify(scanningResult) });
+          navigation.navigate('Results', { barcodeData: JSON.stringify(scanningResult) });
         }}
       >
         <View className="mx-4 mt-24">

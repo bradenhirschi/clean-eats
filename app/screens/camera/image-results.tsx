@@ -4,12 +4,11 @@ import { Text, View } from 'react-native';
 import { supabase } from '../../utils/supabase';
 
 interface Props {
-  route: { params: { imageText: string } };
+  route: { params: { barcodeData: string } };
 }
 
 const ImageResultsScreen = ({ route }: Props) => {
-  const barcodeInfo = JSON.parse(route.params.imageText);
-  const upc = barcodeInfo.data;
+  const upc = JSON.parse(route.params.barcodeData).data;  
   let backupUpc: string;
 
   const [data, setData] = useState<any>();
@@ -25,6 +24,19 @@ const ImageResultsScreen = ({ route }: Props) => {
       console.log('Error getting User ID:', error);
     }
   };
+
+  // const storeHistory = async () => {
+  //   const userId = await getUserID();
+
+  //   if (data) {
+  //     console.log('bn', data.brandName || '');
+  //     console.log('description', data.description || '');
+  //     console.log(upc);
+  //     //insert into supabase table user_history here
+  //   }else {
+  //     setTimeout(() => storeHistory(), 100);
+  //   }
+  // }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,13 +78,20 @@ const ImageResultsScreen = ({ route }: Props) => {
             }
           });
         }
+        const { data: historyData, error: historyError } = await supabase.from('user_history').insert({ upc: upc, brand_name: firstFoodItem.brandName, product_name: firstFoodItem.description })
+        if (historyError) {
+          console.error(historyError)
+        } else {
+          console.log(historyData)
+        }
+        // storeHistory();
       } else {
         console.log('No food items found');
       }
     };
-
     fetchData();
   }, []);
+
 
   if (!data) {
     return (
@@ -81,6 +100,8 @@ const ImageResultsScreen = ({ route }: Props) => {
       </View>
     );
   }
+
+
 
   return (
     <View className="flex-1 p-8">

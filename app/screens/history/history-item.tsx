@@ -1,11 +1,12 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Item {
   // TODO maybe change this to product to be a global type
-  name: string;
-  brand: string;
-  timestamp: string;
+  product_name: string;
+  brand_name: string;
+  created_at: string;
+  upc: string;
 }
 
 const HistoryItem = ({ item }: { item: Item }) => {
@@ -53,16 +54,18 @@ const HistoryItem = ({ item }: { item: Item }) => {
     return interval + ' ' + intervalType;
   };
 
+  //JSON.stringify({data: upc})
+
   return (
     <View className="py-2">
-      <View className="flex flex-row items-center">
-        <Text className="text-lg">{item.name}&nbsp;</Text>
-        <Text className="text-xs text-neutral-500">- {item.brand}</Text>
-      </View>
+      <Pressable className="flex flex-row items-center">
+        <Text className="text-lg">{item.product_name}&nbsp;</Text>
+        <Text className="text-xs text-neutral-500">- {item.brand_name}</Text>
+      </Pressable>
       <View className="flex flex-row items-center">
         <Ionicons name="time-outline" />
         <Text className="flex flex-row items-center text-xs text-neutral-500">
-          &nbsp;{timeSince(item.timestamp)} ago
+          &nbsp;{timeSince(item.created_at)} ago
         </Text>
       </View>
     </View>
