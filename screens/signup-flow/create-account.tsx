@@ -24,6 +24,8 @@ const AuthScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [firstName, setFirstName] = useState(''); 
+  const [lastName, setLastName] = useState(''); 
   const [modalVisible, setModalVisible] = useState(false);
 
   async function signInWithEmail() {
@@ -31,6 +33,7 @@ const AuthScreen = () => {
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
+      
     });
 
     if (error) Alert.alert(error.message);
@@ -45,12 +48,16 @@ const AuthScreen = () => {
     } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: { first_name: firstName, last_name: lastName }
+      }
     });
 
     if (error) Alert.alert(error.message);
     if (!session) Alert.alert('Please check your inbox for email verification!');
     setLoading(false);
   }
+  
 
   return (
     <DismissKeyboard>
@@ -78,6 +85,24 @@ const AuthScreen = () => {
             secureTextEntry={true}
             placeholder="Password"
             autoCapitalize={'none'}
+          />
+        </View>
+        <View className="py-2">
+          <Input
+            label="First Name"
+            onChangeText={(text) => setFirstName(text)}
+            value={firstName}
+            placeholder="John"
+            autoCapitalize={'words'} // Capitalize the first letter of each word
+          />
+        </View>
+        <View className="py-2">
+          <Input
+            label="Last Name"
+            onChangeText={(text) => setLastName(text)}
+            value={lastName}
+            placeholder="Doe"
+            autoCapitalize={'words'}
           />
         </View>
         <View className="py-2">

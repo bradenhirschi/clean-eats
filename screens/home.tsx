@@ -12,6 +12,24 @@ interface Props {
 
 const HomeScreen = ({ navigation }: Props) => {
   const [nutritionTips, setNutritionTips] = useState<string[]>([]);
+  const [userFirstName, setUserFirstName] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (user) {
+          setUserFirstName(user.user_metadata?.first_name || '');
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  
+  }, []);
 
   useEffect(() => {
     setNutritionTips([]);
@@ -46,7 +64,7 @@ const HomeScreen = ({ navigation }: Props) => {
       {/* Greeting */}
       <View className="flex flex-col bg-white border-b border-b-gray-300 mb-8 pt-20 pb-4 px-4">
         {/* TODO add some kind of greeting by user's name - "Hey John!" */}
-        <Text className="text-2xl font-[montserrat-bold]">Hey user!</Text>
+        <Text className="text-2xl font-[montserrat-bold]">Hey, {userFirstName}!</Text>
       </View>
 
       {/* Buttons */}
