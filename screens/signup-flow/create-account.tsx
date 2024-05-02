@@ -23,6 +23,8 @@ const DismissKeyboard = ({ children }: { children: any }) => (
 const AuthScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -45,6 +47,12 @@ const AuthScreen = () => {
     } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+        }
+      }
     });
 
     if (error) Alert.alert(error.message);
@@ -59,6 +67,24 @@ const AuthScreen = () => {
           <Text className="text-5xl">CleanEats {/* TODO BRADEN make this Montserrat font */}</Text>
         </View>
         <View className="py-2">
+          <Input
+              label="First Name"
+              leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+              onChangeText={(text) => setFirstName(text)}
+              value={firstName}
+              placeholder="John"
+              autoCapitalize={'none'}
+              textContentType='oneTimeCode'
+            />
+          <Input
+            label="Last Name"
+            leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+            onChangeText={(text) => setLastName(text)}
+            value={lastName}
+            placeholder="Doe"
+            autoCapitalize={'none'}
+            textContentType='oneTimeCode'
+          />
           <Input
             label="Email"
             leftIcon={{ type: 'font-awesome', name: 'envelope' }}

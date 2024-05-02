@@ -3,6 +3,7 @@ import { supabase } from "../utils/supabase";
 import React, { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Octicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface Props {
   navigation: {
@@ -12,6 +13,24 @@ interface Props {
 
 const HomeScreen = ({ navigation }: Props) => {
   const [nutritionTips, setNutritionTips] = useState<string[]>([]);
+  const [username, setUsername] = useState<string>();
+
+  useFocusEffect(() => {
+    const fetchData = async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        const metadata = user?.user_metadata
+        const name = metadata?.first_name || 'user'
+        setUsername(name);
+
+
+      } catch (err) {
+        console.log('error')
+      }
+    }; fetchData();
+  });
 
   useEffect(() => {
     setNutritionTips([]);
@@ -46,7 +65,7 @@ const HomeScreen = ({ navigation }: Props) => {
       {/* Greeting */}
       <View className="flex flex-col bg-white border-b border-b-gray-300 mb-8 pt-20 pb-4 px-4">
         {/* TODO add some kind of greeting by user's name - "Hey John!" */}
-        <Text className="text-2xl font-[montserrat-bold]">Hey user!</Text>
+        <Text className="text-2xl font-[montserrat-bold]">Hey {username}!</Text>
       </View>
 
       {/* Buttons */}

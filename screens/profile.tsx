@@ -1,6 +1,8 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { supabase } from '../utils/supabase';
 import Toast from 'react-native-root-toast';
+import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Props {
   navigation: {
@@ -9,6 +11,7 @@ interface Props {
 }
 
 const ProfileScreen = ({ navigation }: Props) => {
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
 
