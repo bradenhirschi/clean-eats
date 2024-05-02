@@ -144,7 +144,7 @@ const MyPlanScreen = ({ navigation }: Props) => {
 
     setLoading(false);
 
-    Toast.show('Plan updated successfully', {
+    Toast.show('Plan updated successfully!', {
       duration: Toast.durations.SHORT,
       position: Toast.positions.TOP
     });

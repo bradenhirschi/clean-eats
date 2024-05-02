@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { supabase } from "../../utils/supabase";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+interface NutrientContents {
+  sodium: number;
+  sugars: number;
+  fat: number;
+}
 
 interface Props {
   route: { params: { barcodeData: string } };
 }
 
 const ImageResultsScreen = ({ route }: Props) => {
-  const upc = JSON.parse(route.params.barcodeData).data;  
+  const upc = JSON.parse(route.params.barcodeData).data;
   let backupUpc: string;
 
-  const [data, setData] = useState<any>();
-  const [warning, setWarning] = useState<string>();
+  const [foodItem, setFoodItem] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [allergicIngredients, setAllergicIngredients] = useState<string[]>();
 
   const getUserID = async () => {
     try {
@@ -25,22 +32,9 @@ const ImageResultsScreen = ({ route }: Props) => {
     }
   };
 
-  // const storeHistory = async () => {
-  //   const userId = await getUserID();
-
-  //   if (data) {
-  //     console.log('bn', data.brandName || '');
-  //     console.log('description', data.description || '');
-  //     console.log(upc);
-  //     //insert into supabase table user_history here
-  //   }else {
-  //     setTimeout(() => storeHistory(), 100);
-  //   }
-  // }
-
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch food data from USDA
+      // Fetch food data from USDA FoodData
       if (upc.length === 13) {
         backupUpc = upc.substring(1);
       }
@@ -82,36 +76,59 @@ const ImageResultsScreen = ({ route }: Props) => {
       // Parse food data
       if (data.foods && data.foods.length > 0) {
         const firstFoodItem = data.foods[0];
-        setData(firstFoodItem);
-        {
-          let newWarning = "";
-          userAllergies.map((allergy) => {
-            if (firstFoodItem.ingredients.toLowerCase().includes(allergy)) {
-              if (newWarning === "") {
-                newWarning = `${newWarning}WARNING: this food includes ${allergy}\n`;
-              } else {
-                newWarning = `${newWarning} and ${allergy}`;
-              }
-            }
+        setFoodItem(firstFoodItem);
+        setLoading(false);
+
+        parseAllergicIngredients(userAllergies, firstFoodItem);
+
+        parseNutrients(firstFoodItem);
+
+        // Store item in history
+        const { data: historyData, error: historyError } = await supabase
+          .from("user_history")
+          .insert({
+            upc: upc,
+            brand_name: firstFoodItem.brandName,
+            product_name: firstFoodItem.description,
           });
-          setWarning(newWarning);
-        }
-        const { data: historyData, error: historyError } = await supabase.from('user_history').insert({ upc: upc, brand_name: firstFoodItem.brandName, product_name: firstFoodItem.description })
         if (historyError) {
-          console.error(historyError)
+          console.error(historyError);
         } else {
-          console.log(historyData)
+          console.log(historyData);
         }
-        // storeHistory();
       } else {
+        // If no foods found
         console.log("No food items found");
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
+  const parseAllergicIngredients = (
+    userAllergies: string[],
+    firstFoodItem: any
+  ) => {
+    let newAllergicIngredients: string[] = [];
+    userAllergies.map((allergy) => {
+      if (firstFoodItem.ingredients.toLowerCase().includes(allergy)) {
+        newAllergicIngredients.push(allergy);
+      }
+    });
+    setAllergicIngredients(newAllergicIngredients);
+  };
 
-  if (!data) {
+  const parseNutrients = (firstFoodItem: any) => {
+    const trackedNutrients = ["Protein", "Total Sugars", "Sodium, Na"];
+
+    firstFoodItem.foodNutrients.map((nutrient: any) => {
+      if (trackedNutrients.includes(nutrient.nutrientName)) {
+        console.log(nutrient.nutrientName, nutrient.percentDailyValue);
+      }
+    });
+  };
+
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center p-8">
         <ActivityIndicator size={"large"} />
@@ -119,23 +136,56 @@ const ImageResultsScreen = ({ route }: Props) => {
     );
   }
 
-
+  if (!loading && !foodItem) {
+    return (
+      <View className="flex-1 p-8">
+        <View className="flex flex-row items-center justify-center p-4 mt-2 rounded-lg bg-red-700/30">
+          <Ionicons name={"alert-circle-outline"} size={32} color="#b91c1c" />
+          <Text className="text-red-700 ml-2">
+            No food items found. Try again
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 p-8">
       <View className="border-b border-gray-300 pb-2">
-        <Text className="font-bold text-xl">{data.description || ""}</Text>
-        <Text className="text-gray-500 text-xs">
-          {data.brandName || "Unbranded"}
+        <Text className="font-bold text-xl capitalize">
+          {foodItem.description.toLowerCase() || ""}
+        </Text>
+        <Text className="text-gray-500 text-sm capitalize">
+          {foodItem.brandName.toLowerCase() || "Unbranded"}
         </Text>
       </View>
       <View className="py-2">
         <Text className="font-semibold text-lg">Ingredients</Text>
-        <Text className="mb-2">{data.ingredients.toLowerCase()}</Text>
-        {warning && (
-          <View className="flex flex-row items-center justify-center p-4 mt-2 rounded-lg bg-red-700/30">
-            <Ionicons name={'alert-circle-outline'} size={32} color="#b91c1c" />
-            <Text className="text-red-700 ml-2">{warning}</Text>
+        <Text className="mb-2 capitalize">
+          {foodItem.ingredients.toLowerCase()}
+        </Text>
+        {allergicIngredients?.length ? (
+          <View className="flex flex-row justify-center p-4 mt-2 rounded-lg bg-red-700/30">
+            <Ionicons name={"alert-circle-outline"} size={32} color="#b91c1c" />
+            <View className="flex-col ml-2">
+              <Text className="text-red-700 mb-1">
+                WARNING: this food includes ingredients you may be allergic to,
+                including:
+              </Text>
+              {allergicIngredients &&
+                allergicIngredients.map((ingredient) => (
+                  <Text className="text-red-700 capitalize">
+                    &#x2022; {ingredient}
+                  </Text>
+                ))}
+            </View>
+          </View>
+        ) : (
+          <View className="flex flex-row items-center justify-center p-4 mt-2 rounded-lg bg-lime-700/30">
+            <Ionicons name={"happy-outline"} size={32} color="#4d7c0f" />
+            <Text className="text-lime-700 ml-2">
+              This food contains none of your selected allergens. Enjoy!
+            </Text>
           </View>
         )}
       </View>

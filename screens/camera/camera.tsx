@@ -43,7 +43,6 @@ const CameraScreen = ({ navigation }: Props) => {
       facing={facing}
         ref={cameraRef}
         className="flex-1"
-        // barcodeScannerSettings={{barCodeTypes: ['upc_a']}}
         onBarcodeScanned={(scanningResult) => {
           // TODO BRADEN move this into a named function
           navigation.navigate('Results', { barcodeData: JSON.stringify(scanningResult) });
@@ -84,7 +83,7 @@ const CameraScreen = ({ navigation }: Props) => {
 
           <View className="flex-1" />
 
-          {/* Camera button */}
+          {/* Camera button, unhide this if we reimplement it */}
           <View className="mx-auto mb-32 w-[80px] h-[80px] rounded-full bg-transparent flex items-center justify-center">
             {/* <TouchableOpacity
               onPress={takePicture}

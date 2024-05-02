@@ -1,8 +1,8 @@
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
-import { supabase } from '../utils/supabase';
-import React, { useEffect, useState } from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Octicons } from '@expo/vector-icons';
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { supabase } from "../utils/supabase";
+import React, { useEffect, useState } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Octicons } from "@expo/vector-icons";
 
 interface Props {
   navigation: {
@@ -19,22 +19,22 @@ const HomeScreen = ({ navigation }: Props) => {
     const fetchNutritionTips = async () => {
       try {
         // TODO make this select random rows
-        const { data, error } = await supabase.from('nutrition_tips').select();
+        const { data, error } = await supabase.from("nutrition_tips").select();
         if (error) {
           throw error;
         }
         const tips = data.map((d) => d.tip);
         const tipsToDisplay: string[] = [];
 
-        for (let i=0; i<4; i++) {
-          const newTip = tips[Math.floor(Math.random() * (tips.length))]; // Choose random new tip
+        for (let i = 0; i < 4; i++) {
+          const newTip = tips[Math.floor(Math.random() * tips.length)]; // Choose random new tip
           const existingTip = tipsToDisplay.find((tip) => tip === newTip); // Check if tip already exists in tipsToDisplay
           existingTip ? i-- : tipsToDisplay.push(newTip); // If so, decrement the count and try again. Otherwise add new tip
         }
 
         setNutritionTips(tipsToDisplay);
       } catch (error: any) {
-        console.error('Error fetching nutrition tips:', error.message);
+        console.error("Error fetching nutrition tips:", error.message);
       }
     };
 
@@ -53,40 +53,28 @@ const HomeScreen = ({ navigation }: Props) => {
       <View className="flex flex-row bg-white justify-center pb-8 mb-4 gap-8">
         <Pressable
           className="flex flex-col items-center"
-          onPress={() => navigation.navigate('CameraLayout')}
-        >
-          <View className="bg-[#5E9E38] h-[60px] w-[60px] rounded-3xl flex items-center justify-center">
-            <Ionicons
-              name="camera-outline"
-              size={32}
-              color="white"
-            />
-          </View>
-          <Text className="mt-2">Camera</Text>
-        </Pressable>
-        <Pressable
-          className="flex flex-col items-center"
-          onPress={() => navigation.navigate('History')}
+          onPress={() => navigation.navigate("History")}
         >
           <View className="bg-orange-500 h-[60px] w-[60px] rounded-3xl flex items-center justify-center">
-            <Octicons
-              name="history"
-              size={28}
-              color="white"
-            />
+            <Octicons name="history" size={28} color="white" />
           </View>
           <Text className="mt-2">History</Text>
         </Pressable>
         <Pressable
           className="flex flex-col items-center"
-          onPress={() => navigation.navigate('My Plan')}
+          onPress={() => navigation.navigate("CameraLayout")}
+        >
+          <View className="bg-[#5E9E38] h-[60px] w-[60px] rounded-3xl flex items-center justify-center">
+            <Ionicons name="camera-outline" size={32} color="white" />
+          </View>
+          <Text className="mt-2">Camera</Text>
+        </Pressable>
+        <Pressable
+          className="flex flex-col items-center"
+          onPress={() => navigation.navigate("My Plan")}
         >
           <View className="bg-[#CB3034] h-[60px] w-[60px] rounded-3xl flex items-center justify-center">
-            <Ionicons
-              name="list"
-              size={32}
-              color="white"
-            />
+            <Ionicons name="list" size={32} color="white" />
           </View>
           <Text className="mt-2">My Plan</Text>
         </Pressable>
@@ -94,13 +82,12 @@ const HomeScreen = ({ navigation }: Props) => {
 
       {/* Nutrition tips */}
       <View className="mb-4 p-4 bg-white">
-        <Text className="text-xl mb-2 font-[montserrat-bold]">Nutrition Tips</Text>
+        <Text className="text-xl mb-2 font-[montserrat-bold]">
+          Daily Nutrition Tips
+        </Text>
         <View className="rounded-lg bg-gray-200 divide-y p-2">
           {nutritionTips?.map((tip) => (
-            <View
-              key={tip}
-              className="p-2"
-            >
+            <View key={tip} className="p-2">
               <Text className="text-base">{tip}</Text>
             </View>
           ))}

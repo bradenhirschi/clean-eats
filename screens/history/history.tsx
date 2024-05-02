@@ -1,9 +1,9 @@
-import { View, Text, Pressable } from 'react-native';
-import { supabase } from '../../utils/supabase';
-import HistoryItem from './history-item';
-import { useEffect, useState } from 'react';
-import { getActionFromState } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native';
+import { View, Text, Pressable } from "react-native";
+import { supabase } from "../../utils/supabase";
+import HistoryItem from "./history-item";
+import { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface Props {
   navigation: {
@@ -20,7 +20,6 @@ interface Product {
 }
 
 const HistoryScreen = ({ navigation }: Props) => {
-
   const [userHistory, setUserHistory] = useState<Product[]>();
 
   const getUserID = async () => {
@@ -30,88 +29,33 @@ const HistoryScreen = ({ navigation }: Props) => {
         return id;
       }
     } catch (error) {
-      console.log('Error getting User ID:', error);
+      console.log("Error getting User ID:", error);
     }
   };
 
-  const navigateToResults: any = (upc: any) => {
-    navigation.navigate('Results', { barcodeData: JSON.stringify(upc)});
-  };
-
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchHistory = async () => {
       const userID = await getUserID();
       const { data, error } = await supabase
-        .from('user_history')
-        .select('brand_name, product_name, created_at, upc')
-        .eq('user_id', userID);
+        .from("user_history")
+        .select("brand_name, product_name, created_at, upc")
+        .order("created_at", {ascending: false})
+        .eq("user_id", userID)
+        .limit(8);
 
       if (error) {
-        console.error('Error fetching data:', error.message);
+        console.error("Error fetching data:", error.message);
       } else {
-        console.log(data)
         setUserHistory(data);
       }
     };
     fetchHistory();
-  }, []);
-  // const history: Product[] = [
-  //   {
-  //     name: 'Banana',
-  //     brand: 'Chiquita',
-  //     timestamp: '2024-03-18T08:30:00',
-  //   },
-  //   {
-  //     name: 'Oatmeal',
-  //     brand: 'Quaker',
-  //     timestamp: '2024-03-18T12:15:00',
-  //   },
-  //   {
-  //     name: 'Greek Yogurt',
-  //     brand: 'Fage',
-  //     timestamp: '2024-03-18T14:45:00',
-  //   },
-  //   {
-  //     name: 'Chicken Breast',
-  //     brand: 'Perdue',
-  //     timestamp: '2024-03-18T19:00:00',
-  //   },
-  //   {
-  //     name: 'Spinach',
-  //     brand: 'Dole',
-  //     timestamp: '2024-03-19T07:45:00',
-  //   },
-  //   {
-  //     name: 'Salmon',
-  //     brand: 'Wild Planet',
-  //     timestamp: '2024-03-19T12:30:00',
-  //   },
-  //   {
-  //     name: 'Almonds',
-  //     brand: 'Blue Diamond',
-  //     timestamp: '2024-03-19T15:20:00',
-  //   },
-  //   {
-  //     name: 'Avocado',
-  //     brand: 'Hass',
-  //     timestamp: '2024-03-19T18:00:00',
-  //   },
-  //   {
-  //     name: 'Whole Wheat Bread',
-  //     brand: "Dave's Killer Bread",
-  //     timestamp: '2024-03-19T20:10:00',
-  //   },
-  //   {
-  //     name: 'Cottage Cheese',
-  //     brand: "Breakstone's",
-  //     timestamp: '2024-03-19T21:45:00',
-  //   },
-  // ];
+  });
 
   if (!userHistory) {
     return (
       <View className="flex-1 items-center justify-center p-8">
-        <ActivityIndicator size={'large'} />
+        <ActivityIndicator size={"large"} />
       </View>
     );
   }
@@ -123,8 +67,14 @@ const HistoryScreen = ({ navigation }: Props) => {
       </View>
       <View className="divide-y">
         {userHistory!.map((item) => (
-          <Pressable // TODO add click method
-          onPress={() => navigateToResults(item.upc)}
+          <Pressable
+            onPress={
+              () =>
+              navigation.navigate("CameraLayout", {
+                screen: "Results",
+                params: {barcodeData: JSON.stringify({data: item.upc})},
+              })
+            }
             key={item.created_at}
             className="mx-4"
           >
