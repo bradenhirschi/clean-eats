@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { supabase } from "../../utils/supabase";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -20,6 +20,7 @@ const ImageResultsScreen = ({ route }: Props) => {
   const [foodItem, setFoodItem] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [allergicIngredients, setAllergicIngredients] = useState<string[]>();
+  const [forbiddenFoods, setForbiddenFoods] = useState<string[]>();
 
   const getUserID = async () => {
     try {
@@ -42,8 +43,9 @@ const ImageResultsScreen = ({ route }: Props) => {
       const res = await fetch(fetchUrl);
       const data = await res.json();
 
-      // Get user's allergies
+      // Get user's allergies and diet plan forbidden foods
       let userAllergies: string[] = [];
+      let userDietForbiddenFoods: string[] = [];
       const userId = await getUserID();
       try {
         await supabase
@@ -62,10 +64,40 @@ const ImageResultsScreen = ({ route }: Props) => {
             userAllergies = data
               .map((d) => {
                 return [
-                  d.allergy_name,
-                  // @ts-ignore
-                  d.common_allergies.included_allergies,
-                ].flat();
+                  ...new Set(
+                    [
+                      d.allergy_name,
+                      // @ts-ignore
+                      d.common_allergies.included_allergies,
+                    ].flat()
+                  ),
+                ];
+              })
+              .flat();
+          });
+
+        await supabase
+          .from("user_diets")
+          .select("diet_name, diets (forbidden_foods)")
+          .eq("user_id", userId)
+          .then(({ data, error }) => {
+            if (error) {
+              throw new Error(
+                `Error fetching user diet plan data: ${error.message}`
+              );
+            }
+
+            userDietForbiddenFoods = data
+              .map((d) => {
+                return [
+                  ...new Set(
+                    [
+                      d.diet_name,
+                      // @ts-ignore
+                      d.diets.forbidden_foods,
+                    ].flat()
+                  ),
+                ];
               })
               .flat();
           });
@@ -80,6 +112,7 @@ const ImageResultsScreen = ({ route }: Props) => {
         setLoading(false);
 
         parseAllergicIngredients(userAllergies, firstFoodItem);
+        parseDietForbiddenFoods(userDietForbiddenFoods, firstFoodItem);
 
         parseNutrients(firstFoodItem);
 
@@ -118,6 +151,19 @@ const ImageResultsScreen = ({ route }: Props) => {
     setAllergicIngredients(newAllergicIngredients);
   };
 
+  const parseDietForbiddenFoods = (
+    forbiddenFoods: string[],
+    firstFoodItem: any
+  ) => {
+    let newForbiddenFoods: string[] = [];
+    forbiddenFoods.map((food) => {
+      if (firstFoodItem.ingredients.toLowerCase().includes(food)) {
+        newForbiddenFoods.push(food);
+      }
+    });
+    setForbiddenFoods(newForbiddenFoods);
+  };
+
   const parseNutrients = (firstFoodItem: any) => {
     const trackedNutrients = ["Protein", "Total Sugars", "Sodium, Na"];
 
@@ -150,7 +196,8 @@ const ImageResultsScreen = ({ route }: Props) => {
   }
 
   return (
-    <View className="flex-1 p-8">
+    
+    <ScrollView className="flex-1 p-8 h-[650px] max-h-[650px]">
       <View className="border-b border-gray-300 pb-2">
         <Text className="font-bold text-xl capitalize">
           {foodItem.description.toLowerCase() || ""}
@@ -164,7 +211,7 @@ const ImageResultsScreen = ({ route }: Props) => {
         <Text className="mb-2 capitalize">
           {foodItem.ingredients.toLowerCase()}
         </Text>
-        {allergicIngredients?.length ? (
+        {allergicIngredients && allergicIngredients.length > 0 && (
           <View className="flex flex-row justify-center p-4 mt-2 rounded-lg bg-red-700/30">
             <Ionicons name={"alert-circle-outline"} size={32} color="#b91c1c" />
             <View className="flex-col ml-2">
@@ -172,15 +219,31 @@ const ImageResultsScreen = ({ route }: Props) => {
                 WARNING: this food includes ingredients you may be allergic to,
                 including:
               </Text>
-              {allergicIngredients &&
-                allergicIngredients.map((ingredient) => (
-                  <Text className="text-red-700 capitalize">
-                    &#x2022; {ingredient}
-                  </Text>
-                ))}
+              {allergicIngredients?.map((ingredient) => (
+                <Text className="text-red-700 capitalize">
+                  &#x2022; {ingredient}
+                </Text>
+              ))}
             </View>
           </View>
-        ) : (
+        )}
+
+        {forbiddenFoods && forbiddenFoods.length > 0 && (
+          <View className="flex flex-row justify-center p-4 mt-2 rounded-lg bg-red-700/30">
+            <Ionicons name={"alert-circle-outline"} size={32} color="#b91c1c" />
+            <View className="flex-col ml-2">
+              <Text className="text-red-700 mb-1">
+                WARNING: this food includes ingredients forbidden by your diet
+                plan(s), including:
+              </Text>
+              {forbiddenFoods?.map((food) => (
+                <Text className="text-red-700 capitalize">&#x2022; {food}</Text>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {!allergicIngredients?.length && !forbiddenFoods?.length && (
           <View className="flex flex-row items-center justify-center p-4 mt-2 rounded-lg bg-lime-700/30">
             <Ionicons name={"happy-outline"} size={32} color="#4d7c0f" />
             <Text className="text-lime-700 ml-2">
@@ -189,7 +252,7 @@ const ImageResultsScreen = ({ route }: Props) => {
           </View>
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
