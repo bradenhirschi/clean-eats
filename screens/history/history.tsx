@@ -39,7 +39,7 @@ const HistoryScreen = ({ navigation }: Props) => {
       const { data, error } = await supabase
         .from("user_history")
         .select("brand_name, product_name, created_at, upc")
-        .order("created_at", {ascending: false})
+        .order("created_at", { ascending: false })
         .eq("user_id", userID)
         .limit(8);
 
@@ -68,11 +68,10 @@ const HistoryScreen = ({ navigation }: Props) => {
       <View className="divide-y">
         {userHistory!.map((item) => (
           <Pressable
-            onPress={
-              () =>
+            onPress={() =>
               navigation.navigate("CameraLayout", {
                 screen: "Results",
-                params: {barcodeData: JSON.stringify({data: item.upc})},
+                params: { barcodeData: JSON.stringify({ data: item.upc }) },
               })
             }
             key={item.created_at}
