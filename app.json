@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +21,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.bradenhirschi.cleaneats"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +38,11 @@
           "cameraPermission": "Allow CleanEats to access your camera?"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4a926af1-2cfe-407b-9458-2b62ee66c9ba"
+      }
+    }
   }
 }

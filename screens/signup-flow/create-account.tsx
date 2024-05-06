@@ -26,7 +26,6 @@ const AuthScreen = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
 
   async function signInWithEmail() {
     setLoading(true);
@@ -63,25 +62,25 @@ const AuthScreen = () => {
   return (
     <DismissKeyboard>
       <View className="p-12 mt-4">
-        <View className="flex items-center my-24">
+        <View className="flex items-center my-12">
           <Text className="text-5xl">CleanEats {/* TODO BRADEN make this Montserrat font */}</Text>
         </View>
         <View className="py-2">
           <Input
               label="First Name"
-              leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+              leftIcon={{ type: 'font-awesome', name: 'user' }}
               onChangeText={(text) => setFirstName(text)}
               value={firstName}
-              placeholder="John"
+              placeholder="First name"
               autoCapitalize={'none'}
-              textContentType='oneTimeCode'
+              textContentType='oneTimeCode' // this is a quick fix to hide the password toolbar in non-password inputs
             />
           <Input
             label="Last Name"
-            leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+            leftIcon={{ type: 'font-awesome', name: 'address-card' }}
             onChangeText={(text) => setLastName(text)}
             value={lastName}
-            placeholder="Doe"
+            placeholder="Last name"
             autoCapitalize={'none'}
             textContentType='oneTimeCode'
           />
@@ -90,9 +89,9 @@ const AuthScreen = () => {
             leftIcon={{ type: 'font-awesome', name: 'envelope' }}
             onChangeText={(text) => setEmail(text)}
             value={email}
-            placeholder="email@address.com"
+            placeholder="Email"
             autoCapitalize={'none'}
-            textContentType='oneTimeCode' // TODO BRADEN this is a janky fix to hide the password toolbar. Figure out a better way
+            textContentType='oneTimeCode'
           />
         </View>
         <View className="py-2">

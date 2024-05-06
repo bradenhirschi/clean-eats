@@ -27,7 +27,7 @@ const CameraScreen = ({ navigation }: Props) => {
         <Text className="text-center">We need your permission to show the camera</Text>
         <Button
           onPress={requestPermission}
-          title="grant permission"
+          title="Grant permission"
         />
       </View>
     );

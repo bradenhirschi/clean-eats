@@ -4,6 +4,7 @@ import HistoryItem from "./history-item";
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 
 interface Props {
   navigation: {
@@ -56,6 +57,27 @@ const HistoryScreen = ({ navigation }: Props) => {
     return (
       <View className="flex-1 items-center justify-center p-8">
         <ActivityIndicator size={"large"} />
+      </View>
+    );
+  }
+
+  if (!userHistory.length) {
+    return (
+      <View className="flex-1">
+        <View className="flex flex-col bg-white border-b border-b-gray-300 mb-4 pt-20 pb-4 px-4">
+          <Text className="text-2xl font-[montserrat-bold]">History</Text>
+        </View>
+        <Pressable
+          className="flex flex-col items-center"
+          onPress={() => navigation.navigate("History")}
+        >
+          <View className="bg-orange-500 h-[60px] w-[200px] px-8 rounded-3xl flex flex-row items-center justify-center">
+            <Ionicons name="camera-outline" size={32} color="white" />
+            <Text className="text-white ml-2">
+              Scan a food item to get started!
+            </Text>
+          </View>
+        </Pressable>
       </View>
     );
   }
